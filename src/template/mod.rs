@@ -17,9 +17,12 @@ pub const ANSI_RESET: &str = "\x1b[0m";
 
 /// Helper function that reads a text file to a string.
 #[must_use]
-pub fn read_file(folder: &str, day: Day) -> String {
+pub fn read_file(folder: &str, day: Day, complement: Option<&str>) -> String {
     let cwd = env::current_dir().unwrap();
-    let filepath = cwd.join("data").join(folder).join(format!("{day}.txt"));
+    let filepath = match complement {
+        Some(c) => cwd.join("data").join(folder).join(format!("{day}{c}.txt")),
+        None => cwd.join("data").join(folder).join(format!("{day}.txt")),
+    };
     let f = fs::read_to_string(filepath);
     f.expect("could not open input file")
 }
@@ -61,7 +64,7 @@ macro_rules! solution {
 
         fn main() {
             use $crate::template::runner::*;
-            let input = $crate::template::read_file("inputs", DAY);
+            let input = $crate::template::read_file("inputs", DAY, None);
             $( run_part($func, &input, DAY, $part); )*
         }
     };
