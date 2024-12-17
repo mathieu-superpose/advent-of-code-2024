@@ -47,8 +47,37 @@ pub fn part_one(input: &str) -> Option<i32> {
     Some(count)
 }
 
-pub fn part_two(_input: &str) -> Option<u64> {
-    None
+pub fn part_two(input: &str) -> Option<i32> {
+    let grid: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
+
+    // count the number of occurence of the word XMAS in the grid in all directions
+    let mut count = 0;
+
+    for i in 1..grid.len() - 1 {
+        for j in 1..grid[i].len() - 1 {
+            let curr = grid[i][j];
+
+            if curr != 'A' {
+                continue;
+            }
+
+            let surrounding: String = vec![
+                grid[i - 1][j - 1], // top left
+                grid[i - 1][j + 1], // top right
+                grid[i + 1][j + 1], // bottom right
+                grid[i + 1][j - 1], // bottom left
+            ]
+            .iter()
+            .collect();
+
+            match surrounding.as_str() {
+                "MMSS" | "MSSM" | "SSMM" | "SMMS" => count += 1,
+                _ => (),
+            }
+        }
+    }
+
+    Some(count)
 }
 
 #[cfg(test)]
@@ -64,6 +93,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY, None));
-        assert_eq!(result, None);
+        assert_eq!(result, Some(9));
     }
 }
