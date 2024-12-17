@@ -2,30 +2,18 @@ use core::panic;
 
 advent_of_code::solution!(17);
 
-pub fn part_one(input: &str) -> Option<String> {
-    let data = input.split("\n\n").collect::<Vec<&str>>();
-    let data_registers = data[0].split("\n").collect::<Vec<&str>>();
-    let data_program = data[1].trim().replace("Program: ", "");
-
-    let mut reg_a = data_registers[0]
-        .replace("Register A: ", "")
-        .parse::<u64>()
-        .unwrap();
-    let mut reg_b = data_registers[1]
-        .replace("Register B: ", "")
-        .parse::<u64>()
-        .unwrap();
-    let mut reg_c = data_registers[2]
-        .replace("Register C: ", "")
-        .parse::<u64>()
-        .unwrap();
-    let program = data_program.split(",").collect::<Vec<&str>>();
+fn get_output(mut reg_a: u64, mut reg_b: u64, mut reg_c: u64, program: &Vec<&str>) -> String {
     let mut instruction_pointer = 0;
     let mut output: Vec<String> = Vec::new();
 
     while instruction_pointer < program.len() {
         let opcode = program[instruction_pointer];
         let operand = program[instruction_pointer + 1].parse::<u64>().unwrap();
+
+        // wrong output
+        if output.len() > 10 {
+            break;
+        }
 
         // bxl instruction (opcode 1)
         // calculates the bitwise XOR of register B and the instruction's literal operand
@@ -116,11 +104,45 @@ pub fn part_one(input: &str) -> Option<String> {
         instruction_pointer += 2;
     }
 
-    Some(output.join(","))
+    output.join(",")
 }
 
-pub fn part_two(_input: &str) -> Option<u64> {
-    None
+pub fn part_one(input: &str) -> Option<String> {
+    let data = input.split("\n\n").collect::<Vec<&str>>();
+    let data_registers = data[0].split("\n").collect::<Vec<&str>>();
+    let data_program = data[1].trim().replace("Program: ", "");
+
+    let reg_a = data_registers[0]
+        .replace("Register A: ", "")
+        .parse::<u64>()
+        .unwrap();
+    let reg_b = data_registers[1]
+        .replace("Register B: ", "")
+        .parse::<u64>()
+        .unwrap();
+    let reg_c = data_registers[2]
+        .replace("Register C: ", "")
+        .parse::<u64>()
+        .unwrap();
+    let program = data_program.split(",").collect::<Vec<&str>>();
+
+    let output: String = get_output(reg_a, reg_b, reg_c, &program);
+
+    Some(output)
+}
+
+pub fn part_two(input: &str) -> Option<u64> {
+    let data = input.split("\n\n").collect::<Vec<&str>>();
+    let data_program = data[1].trim().replace("Program: ", "");
+    let program = data_program.split(",").collect::<Vec<&str>>();
+
+    let mut reg_a: u64 = 1;
+
+    while get_output(reg_a, 0, 0, &program) != data_program {
+        reg_a += 1;
+    }
+
+    Some(reg_a)
 }
 
 #[cfg(test)]
@@ -135,7 +157,11 @@ mod tests {
 
     #[test]
     fn test_part_two() {
-        let result = part_two(&advent_of_code::template::read_file("examples", DAY, None));
-        assert_eq!(result, None);
+        let result = part_two(&advent_of_code::template::read_file(
+            "examples",
+            DAY,
+            Some("-b"),
+        ));
+        assert_eq!(result, Some(117440));
     }
 }
