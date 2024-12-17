@@ -2,27 +2,12 @@ use std::i32;
 
 advent_of_code::solution!(5);
 
-pub fn part_one(input: &str) -> Option<i32> {
-    let data = input.split("\n\n").collect::<Vec<&str>>();
-    let ordering: Vec<(i32, i32)> = data[0]
-        .lines()
-        .map(|l| {
-            let mut nums = l.trim().split("|").map(|s| s.parse::<i32>().unwrap());
-            (nums.next().unwrap(), nums.next().unwrap())
-        })
-        .collect();
-
-    let updates: Vec<Vec<i32>> = data[1]
-        .lines()
-        .map(|l| {
-            l.trim()
-                .split(",")
-                .map(|s| s.parse::<i32>().unwrap())
-                .collect()
-        })
-        .collect();
-
-    let mut sum_of_valid_middle = 0;
+fn filter_updates(
+    updates: Vec<Vec<i32>>,
+    ordering: Vec<(i32, i32)>,
+    correct: bool,
+) -> Vec<Vec<i32>> {
+    let mut filtered_updates: Vec<Vec<i32>> = Vec::new();
 
     for update in updates {
         let mut valid = true;
@@ -46,11 +31,47 @@ pub fn part_one(input: &str) -> Option<i32> {
             }
         }
 
-        if valid {
-            let middle_index = update.len() / 2;
-            sum_of_valid_middle += update[middle_index];
+        if valid == correct {
+            filtered_updates.push(update);
         }
     }
+
+    filtered_updates
+}
+
+fn sum_middle(updates: Vec<Vec<i32>>) -> i32 {
+    let mut sum_of_valid_middle = 0;
+
+    for update in updates {
+        let middle_index = update.len() / 2;
+        sum_of_valid_middle += update[middle_index];
+    }
+
+    sum_of_valid_middle
+}
+
+pub fn part_one(input: &str) -> Option<i32> {
+    let data = input.split("\n\n").collect::<Vec<&str>>();
+    let ordering: Vec<(i32, i32)> = data[0]
+        .lines()
+        .map(|l| {
+            let mut nums = l.trim().split("|").map(|s| s.parse::<i32>().unwrap());
+            (nums.next().unwrap(), nums.next().unwrap())
+        })
+        .collect();
+
+    let updates: Vec<Vec<i32>> = data[1]
+        .lines()
+        .map(|l| {
+            l.trim()
+                .split(",")
+                .map(|s| s.parse::<i32>().unwrap())
+                .collect()
+        })
+        .collect();
+
+    let valid_updates = filter_updates(updates, ordering, true);
+    let sum_of_valid_middle = sum_middle(valid_updates);
 
     Some(sum_of_valid_middle)
 }
@@ -72,6 +93,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY, None));
-        assert_eq!(result, None);
+        assert_eq!(result, Some(123));
     }
 }
