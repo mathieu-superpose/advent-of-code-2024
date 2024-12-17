@@ -138,8 +138,18 @@ pub fn part_two(input: &str) -> Option<u64> {
 
     let mut reg_a: u64 = 1;
 
-    while get_output(reg_a, 0, 0, &program) != data_program {
-        reg_a += 1;
+    loop {
+        let output = get_output(reg_a, 0, 0, &program);
+
+        if output == data_program {
+            break;
+        }
+
+        if data_program.ends_with(&output) {
+            reg_a *= 8;
+        } else {
+            reg_a += 1;
+        }
     }
 
     Some(reg_a)
