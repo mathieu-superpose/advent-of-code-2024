@@ -2,54 +2,12 @@ use std::collections::HashSet;
 
 advent_of_code::solution!(18);
 
-pub fn part_one(input: &str) -> Option<i32> {
-    // // example init
-    // let height = 7;
-    // let width = 7;
-    // let max_byte = 12;
-    // let i_height: i32 = height as i32;
-    // let i_width: i32 = width as i32;
-
-    // final init
-    let max_byte = 1024;
-    let height = 71;
-    let width = 71;
-    let i_height: i32 = height as i32;
-    let i_width: i32 = width as i32;
-
-    let mut grid: Vec<Vec<char>> = vec![vec!['.'; width]; height];
-
-    let mut lines = input.lines();
-    let mut valid_lines: usize = 0;
-
-    while valid_lines < max_byte {
-        let data = lines
-            .next()
-            .unwrap()
-            .trim()
-            .split(",")
-            .collect::<Vec<&str>>();
-        let x = data[0].parse::<usize>().unwrap();
-        let y = data[1].parse::<usize>().unwrap();
-
-        if x < width && y < height {
-            grid[y][x] = '#';
-            valid_lines += 1;
-        }
-    }
-
-    // // print grid
-    // println!("Initial grid:");
-    // for row in grid.iter() {
-    //     for cell in row.iter() {
-    //         print!("{}", cell);
-    //     }
-    //     println!();
-    // }
-    // println!();
-
+fn steps_to_exit(
+    grid: Vec<Vec<char>>,
+    height: i32,
+    width: i32,
+) -> i32 {
     let mut round = 1;
-    grid[0][0] = 'O';
 
     let mut stack: Vec<(i32, i32)> = vec![(0, 0)];
     let mut visited: HashSet<(i32, i32)> = HashSet::new();
@@ -72,7 +30,7 @@ pub fn part_one(input: &str) -> Option<i32> {
                 (x - 1, y), // left
                 (x + 1, y), // right
             ] {
-                if x < 0 || x >= i_width || y < 0 || y >= i_height {
+                if x < 0 || x >= width || y < 0 || y >= height {
                     continue;
                 }
 
@@ -84,18 +42,8 @@ pub fn part_one(input: &str) -> Option<i32> {
                     continue;
                 }
 
-                grid[y as usize][x as usize] = 'O';
-
-                if x == i_width - 1 && y == i_height - 1 {
-                    // println!("Final grid:");
-                    // for row in grid.iter() {
-                    //     for cell in row.iter() {
-                    //         print!("{}", cell);
-                    //     }
-                    //     println!();
-                    // }
-
-                    return Some(round);
+                if x == width - 1 && y == height - 1 {
+                    return round;
                 }
 
                 new_stack.push((x, y));
@@ -110,13 +58,43 @@ pub fn part_one(input: &str) -> Option<i32> {
         round += 1;
     }
 
-    // println!("Exit grid:");
-    // for row in grid.iter() {
-    //     for cell in row.iter() {
-    //         print!("{}", cell);
-    //     }
-    //     println!();
-    // }
+    -1
+}
+
+pub fn part_one(input: &str) -> Option<i32> {
+    // // example init
+    // let height = 7;
+    // let width = 7;
+    // let max_byte = 12;
+
+    // final init
+    let max_byte = 1024;
+    let height = 71;
+    let width = 71;
+
+    let mut grid: Vec<Vec<char>> = vec![vec!['.'; width]; height];
+
+    let mut lines = input.lines();
+    let mut valid_lines: usize = 0;
+
+    while valid_lines < max_byte {
+        let data = lines
+            .next()
+            .unwrap()
+            .trim()
+            .split(",")
+            .collect::<Vec<&str>>();
+        let x = data[0].parse::<usize>().unwrap();
+        let y = data[1].parse::<usize>().unwrap();
+
+        if x < width && y < height {
+            grid[y][x] = '#';
+            valid_lines += 1;
+        }
+    }
+
+    let round = steps_to_exit(grid, height as i32, width as i32);
+
     Some(round)
 }
 
