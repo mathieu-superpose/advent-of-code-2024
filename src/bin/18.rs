@@ -58,35 +58,34 @@ fn steps_to_exit(grid: &Vec<Vec<char>>, height: i32, width: i32) -> i32 {
 }
 
 pub fn part_one(input: &str) -> Option<i32> {
-    // // example init
-    // let height = 7;
-    // let width = 7;
-    // let max_byte = 12;
+    let mut width = 0;
+    let mut height = 0;
 
-    // final init
-    let max_byte = 1024;
-    let height = 71;
-    let width = 71;
+    let adresses: Vec<(usize, usize)> = input
+        .lines()
+        .map(|line| {
+            let data = line.trim().split(",").collect::<Vec<&str>>();
+            let x = data[0].parse::<usize>().unwrap();
+            let y = data[1].parse::<usize>().unwrap();
+
+            if x >= width {
+                width = x + 1;
+            }
+            if y >= height {
+                height = y + 1;
+            }
+
+            (x, y)
+        })
+        .collect();
+
+    let max_byte = if width < 10 { 12 } else { 1024 };
 
     let mut grid: Vec<Vec<char>> = vec![vec!['.'; width]; height];
 
-    let mut lines = input.lines();
-    let mut valid_lines: usize = 0;
-
-    while valid_lines < max_byte {
-        let data = lines
-            .next()
-            .unwrap()
-            .trim()
-            .split(",")
-            .collect::<Vec<&str>>();
-        let x = data[0].parse::<usize>().unwrap();
-        let y = data[1].parse::<usize>().unwrap();
-
-        if x < width && y < height {
-            grid[y][x] = '#';
-            valid_lines += 1;
-        }
+    for byte_index in 0..max_byte {
+        let (x, y) = adresses[byte_index];
+        grid[y][x] = '#';
     }
 
     let round = steps_to_exit(&grid, height as i32, width as i32);
@@ -95,47 +94,46 @@ pub fn part_one(input: &str) -> Option<i32> {
 }
 
 pub fn part_two(input: &str) -> Option<String> {
-    // // example init
-    // let height = 7;
-    // let width = 7;
-    // let max_byte = 12;
+    let mut width = 0;
+    let mut height = 0;
 
-    // final init
-    let max_byte = 1024;
-    let height = 71;
-    let width = 71;
+    let adresses: Vec<(usize, usize)> = input
+        .lines()
+        .map(|line| {
+            let data = line.trim().split(",").collect::<Vec<&str>>();
+            let x = data[0].parse::<usize>().unwrap();
+            let y = data[1].parse::<usize>().unwrap();
+
+            if x >= width {
+                width = x + 1;
+            }
+            if y >= height {
+                height = y + 1;
+            }
+
+            (x, y)
+        })
+        .collect();
+
+    let max_byte = if width < 10 { 12 } else { 1024 };
 
     let mut grid: Vec<Vec<char>> = vec![vec!['.'; width]; height];
 
-    let mut lines = input.lines();
-    let mut valid_lines: usize = 0;
-
-    while valid_lines < max_byte {
-        let data = lines
-            .next()
-            .unwrap()
-            .trim()
-            .split(",")
-            .collect::<Vec<&str>>();
-        let x = data[0].parse::<usize>().unwrap();
-        let y = data[1].parse::<usize>().unwrap();
-
-        if x < width && y < height {
-            grid[y][x] = '#';
-            valid_lines += 1;
-        }
-    }
-
-    let mut last_memory = "";
-
-    while steps_to_exit(&grid, height as i32, width as i32) != -1 {
-        last_memory = lines.next().unwrap().trim();
-        let data = last_memory.split(",").collect::<Vec<&str>>();
-        let x = data[0].parse::<usize>().unwrap();
-        let y = data[1].parse::<usize>().unwrap();
-
+    for byte_index in 0..max_byte {
+        let (x, y) = adresses[byte_index];
         grid[y][x] = '#';
     }
+
+    let mut byte_index = max_byte - 1;
+
+    while steps_to_exit(&grid, height as i32, width as i32) != -1 {
+        byte_index += 1;
+        let (x, y) = adresses[byte_index];
+        grid[y][x] = '#';
+    }
+
+    let last_memory =
+        adresses[byte_index].0.to_string() + "," + &adresses[byte_index].1.to_string();
 
     Some(last_memory.to_string())
 }
