@@ -2,11 +2,7 @@ use std::collections::HashSet;
 
 advent_of_code::solution!(18);
 
-fn steps_to_exit(
-    grid: Vec<Vec<char>>,
-    height: i32,
-    width: i32,
-) -> i32 {
+fn steps_to_exit(grid: &Vec<Vec<char>>, height: i32, width: i32) -> i32 {
     let mut round = 1;
 
     let mut stack: Vec<(i32, i32)> = vec![(0, 0)];
@@ -93,13 +89,55 @@ pub fn part_one(input: &str) -> Option<i32> {
         }
     }
 
-    let round = steps_to_exit(grid, height as i32, width as i32);
+    let round = steps_to_exit(&grid, height as i32, width as i32);
 
     Some(round)
 }
 
-pub fn part_two(_input: &str) -> Option<u64> {
-    None
+pub fn part_two(input: &str) -> Option<String> {
+    // // example init
+    // let height = 7;
+    // let width = 7;
+    // let max_byte = 12;
+
+    // final init
+    let max_byte = 1024;
+    let height = 71;
+    let width = 71;
+
+    let mut grid: Vec<Vec<char>> = vec![vec!['.'; width]; height];
+
+    let mut lines = input.lines();
+    let mut valid_lines: usize = 0;
+
+    while valid_lines < max_byte {
+        let data = lines
+            .next()
+            .unwrap()
+            .trim()
+            .split(",")
+            .collect::<Vec<&str>>();
+        let x = data[0].parse::<usize>().unwrap();
+        let y = data[1].parse::<usize>().unwrap();
+
+        if x < width && y < height {
+            grid[y][x] = '#';
+            valid_lines += 1;
+        }
+    }
+
+    let mut last_memory = "";
+
+    while steps_to_exit(&grid, height as i32, width as i32) != -1 {
+        last_memory = lines.next().unwrap().trim();
+        let data = last_memory.split(",").collect::<Vec<&str>>();
+        let x = data[0].parse::<usize>().unwrap();
+        let y = data[1].parse::<usize>().unwrap();
+
+        grid[y][x] = '#';
+    }
+
+    Some(last_memory.to_string())
 }
 
 #[cfg(test)]
@@ -113,14 +151,8 @@ mod tests {
     }
 
     #[test]
-    fn test_part_one_full() {
-        let result = part_one(&advent_of_code::template::read_file("inputs", DAY, None));
-        assert_eq!(result, Some(22));
-    }
-
-    #[test]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY, None));
-        assert_eq!(result, None);
+        assert_eq!(result, Some("6,1".to_string()));
     }
 }
