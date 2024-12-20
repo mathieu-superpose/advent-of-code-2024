@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-advent_of_code::solution!(20);
+advent_of_code::solution!(19);
 
 pub fn part_one(input: &str) -> Option<i32> {
     let data: Vec<&str> = input.split("\n\n").collect();
